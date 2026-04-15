@@ -1,0 +1,8 @@
+.deps
+*.o
+polarizability
+response_depolarized
+response_isotropic
+spectrum
+Makefile
+Makefile.in

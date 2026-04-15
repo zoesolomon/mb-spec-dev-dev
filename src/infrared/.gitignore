@@ -1,0 +1,7 @@
+.deps
+*.o
+dipole
+response
+spectrum
+Makefile
+Makefile.in

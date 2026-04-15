@@ -1,0 +1,6 @@
+./configure CXX=icpx --enable-maintainer-mode --enable-bowman --with-ifclibs='-lifcore -lsvml -ldl' --disable-silent-rules
+
+./configure CXX=icpx CC=icx --enable-maintainer-mode --enable-bowman --with-ifclibs='-lifcore -lsvml -ldl' --disable-silent-rules PKG_CONFIG_PATH=/usr/local/lib/pkgconfig CFLAGS='-g -O1 -Wall -std=c99' CXXFLAGS='-g -O1 -Wall' --no-create --no-recursion
+
+# OSx
+./configure CXX=g++ CC=gcc --enable-maintainer-mode --disable-silent-rules PKG_CONFIG_PATH=/usr/local/lib/pkgconfig CFLAGS='-g -O0 -Wall -std=c99' CXXFLAGS='-g -O0 -Wall' --no-recursion CPPFLAGS="-I/usr/local/opt/lapack/include" LDFLAGS="-L/usr/local/opt/lapack/lib -llapacke"
