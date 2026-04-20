@@ -136,7 +136,7 @@ void read_lammpstrj_frame(size_t& lineno, size_t& imcon, std::istream& is, opt::
 //----------------------------------------------------------------------------//
 
 size_t read_lammpstrj 
-	(const char * in, std::vector<opt::lammpstrj_frame>& frames, size_t imcon, double t) {
+	(const char * in, std::vector<opt::lammpstrj_frame>& frames, size_t imcon, double dump) {
 
 
 	std::ifstream ifs(in);
@@ -153,7 +153,7 @@ size_t read_lammpstrj
 	while((!ifs.eof())){
 		opt::lammpstrj_frame this_frame;
             
-		read_lammpstrj_frame(lineno, imcon, ifs, this_frame, t);
+		read_lammpstrj_frame(lineno, imcon, ifs, this_frame, dump * frameno);
             
 		if (ifs.eof() || this_frame.natm == 0) break;
 			frames.push_back(this_frame);

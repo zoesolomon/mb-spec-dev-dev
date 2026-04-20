@@ -111,6 +111,30 @@ void System::SetUpFromJson(nlohmann::json j, std::string func) {
     mbx_j_["MB-SPEC"]["cutoff_2"] = cutoff2_;
 
     try {
+        ijk_ = j[func]["ijk"];
+    } catch (...) {
+
+    }
+
+    mbx_j_["MB-SPEC"]["ijk"] = ijk_;
+
+    try {
+        zc1_ = j[func]["zc1"];
+    } catch (...) {
+
+    }
+
+    mbx_j_["MB-SPEC"]["zc1"] = zc1_;
+
+    try {
+        zc2_ = j[func]["zc2"];
+    } catch (...) {
+
+    }
+
+    mbx_j_["MB-SPEC"]["zc2"] = zc2_;
+
+    try {
         box_ = j[func]["box"].get<std::vector<double>>();
     } catch (...) {
         // optional warning
@@ -212,6 +236,17 @@ double System::GetBoxVolume() {
     return (box_[1] - box_[0]) * (box_[3] - box_[2]) * (box_[5] - box_[4]);
 }
 
+std::string System::GetIjk() {
+        return ijk_;
+}
+
+double System::GetZc1() {
+    return zc1_;
+}
+
+double System::GetZc2() {
+    return zc2_;
+}
 
 // std::vector<double> System::BoxVecToBoxABCabc(const std::vector<double>& box) {
 //     double A, B, C, alpha, beta, gamma;

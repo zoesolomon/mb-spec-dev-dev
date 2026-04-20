@@ -21,6 +21,7 @@
 #include <algorithm>
 
 #include "read-lammpstrj.h"
+#include "system.h"
 #include "pbc-tools.h"
 #include "struct-sfg-pols.h"
 #define DO_AC yes  	// on to include auto-molecular correlations
@@ -135,13 +136,13 @@ inline void image_monomer(const size_t imcon, const double* cell, const double* 
 
 int main(int argc, char** argv)
 {
-    if (argc < 10) {
-        std::cerr << argc << std::endl;
-        std::cerr << 
-        "usage: response threads zc1 zc2 int_max ijk nb imcon dt dump.dipole_file(s) > response.dat" 
-	    << std::endl;
+    if (argc < 3) {
+        std::cerr << "usage: " << argv[0] << " <file_name(s)> <mb-spec.json>" << std::endl;
         return EXIT_FAILURE;
     }
+
+    System sys;
+    sys.SetUpFromJson("SFG", argv[argc - 1]);
 
     size_t threads(0);
     {
@@ -156,10 +157,9 @@ int main(int argc, char** argv)
 
     double zc1(0);
     {
-	std::istringstream iss(argv[2]);
-	iss >> zc1;
-	if (!iss || !iss.eof()) {
-	    std::cerr << "could not convert '" << argv[2]
+	zc1 = sys.GetZc1();
+	if (!std::is_same<decltype(zc1), double>::value) {
+	    std::cerr << "could not convert '" << zc1
 		<< "' to real number" << std::endl;
 	    return EXIT_FAILURE;
 	}
@@ -167,10 +167,9 @@ int main(int argc, char** argv)
     
     double zc2(0);
     {
-	std::istringstream iss(argv[3]);
-	iss >> zc2;
-	if (!iss || !iss.eof()) {
-	    std::cerr << "could not convert '" << argv[3]
+	zc2 = sys.GetZc2();
+	if (!std::is_same<decltype(zc2), double>::value) {
+	    std::cerr << "could not convert '" << zc2
 		<< "' to real number" << std::endl;
 	    return EXIT_FAILURE;
 	}
@@ -178,16 +177,15 @@ int main(int argc, char** argv)
     
     double int_max(0);
     {
-	std::istringstream iss(argv[4]);
-	iss >> int_max;
-	if (!iss || !iss.eof()) {
-	    std::cerr << "could not convert '" << argv[4]
+	int_max = sys.GetIntMax();
+	if (!std::is_same<decltype(int_max), double>::value) {
+	    std::cerr << "could not convert '" << int_max
 		<< "' to real number" << std::endl;
 	    return EXIT_FAILURE;
 	}
     }
 
-    std::string ijk = argv[5];
+    std::string ijk = sys.GetIjk();
     std::transform(ijk.begin(), ijk.end(), ijk.begin(), ::tolower);
 
     int dipk(0);
@@ -229,41 +227,35 @@ int main(int argc, char** argv)
 //    std::cerr << "dip2 = " << dip2k << std::endl;
 //    std::cerr << "pol2 = " << pol2ij << std::endl;
 
-    std::string nb = argv[6];
+    std::string nb = sys.GetMb();
     std::transform(nb.begin(), nb.end(), nb.begin(), ::tolower);
 
     size_t imcon(0);
     {
-	std::istringstream iss(argv[7]);
-	iss >> imcon;
+	imcon = sys.GetImcon();
     if (imcon == 0){
-       imcon = 2;
-    }
-    else if (imcon < 0 || imcon > 3) {
-       std::cerr << "Cannot calculate system of imcon = " << imcon << std::endl;
-       return EXIT_FAILURE;
-    }
-	if (!iss || !iss.eof()) {
-	    std::cerr << "imcon value of " << argv[7]
-		<< " not a valid integer" << std::endl;
-	    return EXIT_FAILURE;
-	}
-    }
-
-    if (imcon == 1) {
+      imcon = 2;
+    } else if (imcon < 0 || imcon > 3) {
+      std::cerr << "Cannot calculate system of imcon = " << imcon << std::endl;
+      return EXIT_FAILURE;
+    } else if (imcon > 0 && imcon < 3) {
+      if (imcon == 1) {
         std::cerr << "imcon = " << imcon << " (cubic)" << std::endl;
-    } else if (imcon == 2) {
+      } else if (imcon == 2) {
         std::cerr << "imcon = " << imcon << " (orthorhombic)" << std::endl;
-    } else if (imcon == 3) {
+      } else if (imcon == 3) {
         std::cerr << "imcon = " << imcon << " (monoclinic)" << std::endl;
+      }
+    } else {
+      std::cerr << "imcon value of " << imcon << " not a valid integer" << std::endl;
+      return EXIT_FAILURE;
     }
     
-    double dt(0);
+    double dump(0);
     {
-	std::istringstream iss(argv[8]);
-	iss >> dt;
-	if (!iss || !iss.eof()) {
-	    std::cerr << "could not convert '" << argv[8]
+	dump = sys.GetDumpFrequency();
+	if (!std::is_same<decltype(dump), double>::value) {
+	    std::cerr << "could not convert '" << dump
 		<< "' to real number" << std::endl;
 	    return EXIT_FAILURE;
 	}
@@ -271,7 +263,7 @@ int main(int argc, char** argv)
 
     for(int i = 9; i < argc; ++i){
 	try {
-	    opt::read_lammpstrj(argv[i], frames, imcon, dt);
+	    opt::read_lammpstrj(argv[i], frames, imcon, dump);
 	    std::cerr <<" # Frames : " << frames.size() << std::endl;
 
 	} catch (const std::exception& e) {
@@ -284,7 +276,7 @@ int main(int argc, char** argv)
 
     // First, go over trajectory and pre-compute \mu_k and \alpha_{ij}
 
-    dt = (frames[1].time - frames[0].time);
+    double dt = (frames[1].time - frames[0].time);
     int int_time_ind = (int) (int_max / dt);
 
     std::cerr << dt << "   " << int_time_ind << std::endl;

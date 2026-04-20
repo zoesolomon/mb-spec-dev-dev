@@ -39,7 +39,11 @@ public:
     double GetCutoff1();
     double GetCutoff2();
     double GetBoxVolume();
+    std::string GetIjk();
+    double GetZc1();
+    double GetZc2();
 
+    
 private:
 
     std::string mb_;
@@ -53,8 +57,9 @@ private:
 
     double cutoff1_;
     double cutoff2_;
-    double ijk_;
-
+    std::string ijk_;
+    double zc1_;
+    double zc2_;  
 
     bool initialized_;
     bool monomer_json_read_;
