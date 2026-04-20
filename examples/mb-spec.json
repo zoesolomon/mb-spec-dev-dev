@@ -1,0 +1,51 @@
+{
+   "Note" : "json file for MB-SPEC",
+   "INFRARED" : { 
+       "box" : [0, 10, 0, 10, 0, 10],
+       "imcon" : 2,
+       "dump_frequency" : 0.004,
+       "int_max" : 10,
+       "temperature" : 300,
+       "tau" : 0,
+       "alpha" : 1,
+       "mu" : 1,
+       "mb" : "1b",
+       "cutoff_1" : 5.5,
+       "cutoff_2" : 7.5
+   },   
+   "POWER" : { 
+       "box" : [0, 10, 0, 10, 0, 10],
+       "imcon" : 2,
+       "dump_frequency" : 0.004,
+       "int_max" : 10,
+       "temperature" : 300,
+       "tau" : 0,
+       "alpha" : 1
+   },   
+   "RAMAN" : { 
+       "box" : [0, 10, 0, 10, 0, 10],
+       "imcon" : 2,
+       "dump_frequency" : 0.004,
+       "int_max" : 10,
+       "temperature" : 300,
+       "tau" : 0,
+       "alpha" : 1,
+       "mb" : "1b",
+       "cutoff_1" : 5.5,
+       "cutoff_2" : 7.5
+   },   
+   "SFG" : { 
+       "box" : [0, 10, 0, 10, 0, 10],
+       "imcon" : 2,
+       "dump_frequency" : 0.004,
+       "int_max" : 10,
+       "temperature" : 300,
+       "tau" : 0,
+       "alpha" : 1,
+       "mb" : "1b",
+       "zc1" : 6.0,
+       "zc2" : 8.0,
+       "ijk" : "xxz"
+   }   
+}
+
