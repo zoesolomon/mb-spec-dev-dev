@@ -20,6 +20,6 @@ response_depolarized_LDADD = ../tools/libtools.a
 response_depolarized_DEPS = ../tools/libtools.a
 
 spectrum_SOURCES = spectrum.cpp 
-spectrum_LDADD = 
-spectrum_DEPS = 
+spectrum_LDADD = ../tools/libtools.a
+spectrum_DEPS = ../tools/libtools.a
 
