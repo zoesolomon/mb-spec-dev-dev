@@ -1,8 +1,8 @@
 .deps
 *.o
 polarizability
-response_depolarized
-response_isotropic
+response
+response
 spectrum
 Makefile
 Makefile.in
