@@ -3,6 +3,8 @@
 #include <iomanip>
 #include <sstream>
 
+#define EXIT_FAILURE 1
+
 System::System() {
     initialized_ = false;
     monomer_json_read_ = false;
@@ -119,6 +121,14 @@ void System::SetUpFromJson(nlohmann::json j, std::string func) {
     mbx_j_["MB-SPEC"]["ijk"] = ijk_;
 
     try {
+        raman_response_ = j[func]["raman_response"];
+    } catch (...) {
+
+    }
+
+    mbx_j_["MB-SPEC"]["raman_response"] = raman_response_;
+
+    try {
         zc1_ = j[func]["zc1"];
     } catch (...) {
 
@@ -141,11 +151,11 @@ void System::SetUpFromJson(nlohmann::json j, std::string func) {
     }
 
     // if (box_.size() == 9) {
-    //     box_ABCabc_ = BoxVecToBoxABCabc(box_);
+    //     box_maxmin_ = BoxVectorToMaxMin(box_, imcon_);
     // } 
     // else if (box_.size() == 6) {
-    //     box_ABCabc_ = box_;
-    //     box_ = BoxABCabcToBoxVec(box_ABCabc_);
+    //     box_maxmin_ = box_;
+    //     box_ = BoxMaxMinToVector(box_maxmin_, imcon_);
     // }
 
 
@@ -187,9 +197,24 @@ std::string System::GetJsonText() {
     return ss.str();
 }
 
-std::vector<double> System::GetBoxInfo() {
-    return box_;
-    //return box_ABCabc_;
+std::vector<double> System::GetBoxVector() {
+    if (box_.size() == 9) {
+        return box_;
+    } else if (box_.size() == 6) {
+        return BoxMaxMinToVector(box_, imcon_);
+    } else {
+        throw std::runtime_error("box must be in {xx, xy, xz, yx, yy, yz, zx, zy, zz} or {xmin, xmax, ymin, ymax, zmin, zmax} format");
+    }
+}
+
+std::vector<double> System::GetBoxMaxMin() {
+    if (box_.size() == 6) {
+        return box_;
+    } else if (box_.size() == 9) {
+        return BoxVectorToMaxMin(box_, imcon_);
+    } else {
+        throw std::runtime_error("box must be in {xx, xy, xz, yx, yy, yz, zx, zy, zz} or {xmin, xmax, ymin, ymax, zmin, zmax} format");
+    }
 }
 
 std::string System::GetMb() {
@@ -219,7 +244,7 @@ int System::GetTau() {
 double System::GetAlpha() {
     return alpha_;
 }
-
+// TODO: catch all so 0/1 t/f both work
 bool System::GetMu() {
     return mu_;
 }
@@ -232,8 +257,35 @@ double System::GetCutoff2() {
     return cutoff2_;
 }
 
+
+// TODO: change box so xx xy xz yx yy yz zx zy zz then can calc for monoclinic
 double System::GetBoxVolume() {
-    return (box_[1] - box_[0]) * (box_[3] - box_[2]) * (box_[5] - box_[4]);
+    if (box_.size() == 9) {
+        if (imcon_ < 3) {
+            return box_[0] * box_[4] * box_[8];
+        }
+        else {
+            double cross_x = box_[4]*box_[8] - box_[5]*box_[7];
+            double cross_y = -box_[1]*box_[8] + box_[7]*box_[2];
+            double cross_z = box_[1]*box_[5] - box_[4]*box_[2];
+
+            return box_[0]*cross_x + box_[3]*cross_y + box_[6]*cross_z;
+        }
+    }
+    if (box_.size() == 6) {
+        if (imcon_ < 3) {
+            box_vector_ = BoxMaxMinToVector(box_, imcon_);
+            double vmm = (box_[1] - box_[0]) * (box_[3] - box_[2]) * (box_[5] - box_[4]);
+            double vv = box_vector_[0] * box_vector_[4] * box_vector_[8];
+            if (vmm == vv) {
+                return vmm;
+            } else {
+                throw std::runtime_error("Cannot calculate box volume using Min/Max coordinates and imcon = " + imcon_);
+            }
+        } else {
+            throw std::runtime_error("Cannot calculate box volume using Min/Max coordinates and imcon = " + imcon_);
+        }
+    }
 }
 
 std::string System::GetIjk() {
@@ -248,75 +300,30 @@ double System::GetZc2() {
     return zc2_;
 }
 
-// std::vector<double> System::BoxVecToBoxABCabc(const std::vector<double>& box) {
-//     double A, B, C, alpha, beta, gamma;
+// true if depol
+// TODO: .tolower() catch all 'depol' 'dep' 'd' t/f 'iso' etc
+bool System::GetRamanResponse() {
+    if (raman_response_.compare("depolarized") == 0) {
+        return true;
+    }
+    return false;
+}
 
-//     // // Check that first vector (3 first elements of the box) is only in the x axis
-//     // if (IsZero(box[0])) {
-//     //     std::string text =
-//     //         "X component of first vector in box cannot be 0. Please double check your box definition.";  // +
-//     //                                                                                                      // std::to_string(nmax)
-//     //                                                                                                      // + " is not
-//     //                                                                                                      // acceptable.
-//     //                                                                                                      // Possible
-//     //                                                                                                      // values are 2
-//     //                                                                                                      // or 3.";
-//     //     throw CUException(__func__, __FILE__, __LINE__, text);
-//     // }
+std::vector<double> System::BoxVectorToMaxMin(const std::vector<double>& box, size_t imcon) {
+    if (imcon < 3) {
+        std::vector<double> box_out = {0, box[0], 0, box[4], 0, box[8]};
+        return box_out;
+    } else {
+        throw std::runtime_error("Cannot calculate box using vector coordinates and imcon = " + imcon);
+    }
+}
 
-//     // if (!IsZero(box[1]) or !IsZero(box[2])) {
-//     //     std::string text =
-//     //         "Y and Z components of first vector in box must be 0. Please double check your box definition.";
-//     //     throw CUException(__func__, __FILE__, __LINE__, text);
-//     // }
-
-//     // // Check that y component of second vector is not 0
-//     // if (IsZero(box[4])) {
-//     //     std::string text = "Y component of second vector in box cannot be 0. Please double check your box definition.";
-//     //     throw CUException(__func__, __FILE__, __LINE__, text);
-//     // }
-
-//     // // Check that second vector is in XY plane
-//     // if (!IsZero(box[5])) {
-//     //     std::string text = "Z component of second vector in box must be 0. Please double check your box definition.";
-//     //     throw CUException(__func__, __FILE__, __LINE__, text);
-//     // }
-
-//     A = box[0];
-//     B = sqrt(box[3] * box[3] + box[4] * box[4]);
-//     C = sqrt(box[6] * box[6] + box[7] * box[7] + box[8] * box[8]);
-
-//     double AdotB = box[0] * box[3];
-//     double AdotC = box[0] * box[6];
-//     double BdotC = box[3] * box[6] + box[4] * box[7];
-
-//     gamma = acos(AdotB / A / B);
-//     beta = acos(AdotC / A / C);
-//     alpha = acos(BdotC / B / C);
-
-//     std::vector<double> box_out = {A, B, C, alpha / M_PI * 180.0, beta / M_PI * 180.0, gamma / M_PI * 180.0};
-//     return box_out;
-// }
-
-// std::vector<double> System::BoxABCabcToBoxVec(const std::vector<double>& box) {
-//     double A, B, C, alpha, beta, gamma;
-//     A = box[0];
-//     B = box[1];
-//     C = box[2];
-//     alpha = box[3] / 180.0 * M_PI;
-//     beta = box[4] / 180.0 * M_PI;
-//     gamma = box[5] / 180.0 * M_PI;
-
-//     std::vector<double> box_out(9, 0.0);
-//     box_out[0] = A;
-//     box_out[3] = B * cos(gamma);
-//     box_out[4] = B * sin(gamma);
-//     box_out[6] = C * cos(beta);
-//     double tmp = (cos(alpha) - cos(beta) * cos(gamma)) / sin(gamma);
-//     box_out[7] = C * tmp;
-//     box_out[8] = C * sqrt(1.0 - cos(beta) * cos(beta) - tmp * tmp);
-
-//     return box_out;
+std::vector<double> System::BoxMaxMinToVector(const std::vector<double>& box, size_t imcon) {
+    if (imcon < 3) {
+        std::vector<double> box_out = {box[1] - box[0], 0, 0, 0, box[3] - box[2], 0, 0, 0, box[5] - box[4]};
+        return box_out;
+    } else {
+        throw std::runtime_error("Cannot calculate box using Min/Max coordinates and imcon = " + imcon);
+    }
     
-    
-// }
+}

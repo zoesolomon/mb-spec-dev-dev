@@ -250,6 +250,7 @@ int main(int argc, char** argv)
       std::cerr << "imcon value of " << imcon << " not a valid integer" << std::endl;
       return EXIT_FAILURE;
     }
+	}
     
     double dump(0);
     {

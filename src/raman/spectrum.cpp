@@ -6,7 +6,6 @@
 #include <cassert>
 #include <cstdlib>
 #include <sstream>
-
 #include "system.h"
 
 #define ANISO yes

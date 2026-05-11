@@ -339,7 +339,8 @@ int main(int argc, char **argv) {
 
   double dump(0);
   dump = sys.GetDumpFrequency();
-  std::vector<double> box(6);
+  std::vector<double> box(9);
+  box = sys.GetBoxVector();
 
   std::vector<double> everything;
   std::vector<opt::lammpstrj_frame> frames;

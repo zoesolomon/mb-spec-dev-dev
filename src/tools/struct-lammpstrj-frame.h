@@ -20,7 +20,7 @@ struct lammpstrj_frame {
     char* name; // natm * MAX_CHAR_LENGTH
     int* atomic_num; // natm;
     double* mass; // natm
-    double* box;
+    // double* box;
     double* cell;
     double* rcell;
     double* dipind;
@@ -33,7 +33,8 @@ struct lammpstrj_frame {
 };
 
 inline lammpstrj_frame::lammpstrj_frame()
-: natm(0), xyz(0), name(0), atomic_num(0), mass(0), box(0), cell(0), rcell(0),
+: natm(0), xyz(0), name(0), atomic_num(0), mass(0), cell(0), rcell(0),
+//  natm(0), xyz(0), name(0), atomic_num(0), mass(0), box(0), cell(0), rcell(0),
     dipind(0), dipmol(0), vol(0), 
     timestep(0), time(0), imcon(0), molecid(0)
 {
@@ -55,8 +56,8 @@ inline lammpstrj_frame::lammpstrj_frame(const lammpstrj_frame& o)
     	std::copy(o.cell, o.cell + 9, cell);
     	rcell = new double[9];
     	std::copy(o.rcell, o.rcell + 9, rcell);
-        box = new double[6];
-        std::copy(o.box, o.box + 6, box);
+        // box = new double[9];
+        // std::copy(o.box, o.box + 9, box);
         dipind = new double[4*natm];
         std::copy(o.dipind, o.dipind + 4*natm, dipind);
         dipmol = new double[4*natm];
@@ -77,7 +78,7 @@ inline lammpstrj_frame::~lammpstrj_frame()
 	delete[] name;
 	delete[] atomic_num;
 	delete[] mass;
-        delete[] box;
+        // delete[] box;
 	delete[] cell;
 	delete[] rcell;
 	delete[] dipind;
@@ -94,7 +95,7 @@ inline lammpstrj_frame& lammpstrj_frame::operator=(const lammpstrj_frame& o)
 	    delete[] name;
             delete[] atomic_num;
             delete[] mass;
-            delete[] box;
+            // delete[] box;
 	    delete[] cell;
 	    delete[] rcell;
 	    delete[] dipind;
@@ -112,8 +113,8 @@ inline lammpstrj_frame& lammpstrj_frame::operator=(const lammpstrj_frame& o)
             std::copy(o.atomic_num, o.atomic_num + natm, atomic_num);
             mass = new double[natm];
             std::copy(o.mass, o.mass + natm, mass);
-            box = new double[6];
-            std::copy(o.box, o.box + 6, box);
+            // box = new double[9];
+            // std::copy(o.box, o.box + 9, box);
 	    cell = new double[9];
 	    std::copy(o.cell, o.cell + 9, cell);
 	    rcell = new double[9];

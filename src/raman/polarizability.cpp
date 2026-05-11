@@ -201,9 +201,9 @@ int main(int argc, char** argv)
     System sys;
     sys.SetUpFromJson("RAMAN", argv[argc - 1]);
 
-    std::vector<double> box(6);
+    std::vector<double> box(9);
 
-    box = sys.GetBoxInfo();
+    box = sys.GetBoxVector();
 
     const double r2i = sys.GetCutoff1();
     const double r2f = sys.GetCutoff2();

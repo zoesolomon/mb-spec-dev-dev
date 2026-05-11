@@ -8,7 +8,7 @@
        "temperature" : 300,
        "tau" : 0,
        "alpha" : 1,
-       "mu" : 1,
+       "mu" : false,
        "mb" : "1b",
        "cutoff_1" : 5.5,
        "cutoff_2" : 7.5

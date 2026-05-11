@@ -7,12 +7,17 @@ SUBDIRS = .
 AM_CPPFLAGS = -I$(top_srcdir)/src -I$(top_srcdir)/src/tools $(MKL_CFLAGS)
 
 bin_PROGRAMS = dipole \
-	       response \
-               spectrum
+            dipole_omp \
+	        response \
+            spectrum
 
 dipole_SOURCES = dipole.cpp 
 dipole_LDADD = ../tools/libtools.a $(MKL_LIBS)
 dipole_DEPS = ../tools/libtools.a
+
+dipole_omp_SOURCES = dipole_omp.cpp 
+dipole_omp_LDADD = ../tools/libtools.a $(MKL_LIBS)
+dipole_omp_DEPS = ../tools/libtools.a
 
 response_SOURCES = response.cpp 
 response_LDADD = ../tools/libtools.a $(MKL_LIBS)

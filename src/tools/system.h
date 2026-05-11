@@ -27,7 +27,8 @@ public:
 
     std::string GetJsonText();
 
-    std::vector<double> GetBoxInfo();
+    std::vector<double> GetBoxVector();
+    std::vector<double> GetBoxMaxMin();
     std::string GetMb();
     size_t GetImcon();
     double GetDumpFrequency();
@@ -42,6 +43,7 @@ public:
     std::string GetIjk();
     double GetZc1();
     double GetZc2();
+    bool GetRamanResponse();
 
     
 private:
@@ -65,13 +67,14 @@ private:
     bool monomer_json_read_;
     bool use_pbc_;
     bool mpi_initialized_;
+    std::string raman_response_;
 
     int mpi_rank_;
     MPI_Comm world_;
 
     std::vector<double> box_;
-    std::vector<double> box_ABCabc_;
-    std::vector<double> box_inverse_;
+    std::vector<double> box_vector_;
+    std::vector<double> box_maxmin_;
 
     nlohmann::json mbx_j_;
 
@@ -80,8 +83,8 @@ private:
     // int tag_counter_;
 
     // ?
-    // std::vector<double> BoxVecToBoxABCabc(const std::vector<double>& box);
-    // std::vector<double> BoxABCabcToBoxVec(const std::vector<double>& box);
+    std::vector<double> BoxVectorToMaxMin(const std::vector<double>& box, size_t imcon);
+    std::vector<double> BoxMaxMinToVector(const std::vector<double>& box, size_t imcon);
 };
 
 #endif
