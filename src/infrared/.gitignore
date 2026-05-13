@@ -1,6 +1,7 @@
 .deps
 *.o
 dipole
+dipole_omp
 response
 spectrum
 Makefile
