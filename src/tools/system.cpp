@@ -41,6 +41,14 @@ void System::SetUpFromJson(nlohmann::json j, std::string func) {
     mbx_j_["MB-SPEC"]["imcon"] = imcon_;
 
     try {
+        nskip_ = j[func]["nskip"].get<std::vector<std::tuple<size_t, size_t>>>();
+    } catch (...) {
+
+    }
+
+    mbx_j_["MB-SPEC"]["nskip"] = nskip_;
+
+    try {
         dump_frequency_ = j[func]["dump_frequency"];
     } catch (...) {
 
@@ -223,6 +231,10 @@ std::string System::GetMb() {
 
 size_t System::GetImcon() {
     return imcon_;
+}
+
+std::vector<std::tuple<size_t, size_t>> System::GetNskip() {
+    return nskip_;
 }
 
 double System::GetDumpFrequency () {
