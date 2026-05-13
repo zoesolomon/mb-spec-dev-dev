@@ -2,6 +2,7 @@
 #define SYSTEM_H
 
 #include <vector>
+#include <tuple>
 #include <string>
 #include <utility>
 #include <algorithm>
@@ -44,6 +45,7 @@ public:
     double GetZc1();
     double GetZc2();
     bool GetRamanResponse();
+    std::vector<std::tuple<size_t, size_t>> GetNskip();
 
     
 private:
@@ -68,6 +70,7 @@ private:
     bool use_pbc_;
     bool mpi_initialized_;
     std::string raman_response_;
+    std::vector<std::tuple<size_t, size_t>> nskip_;
 
     int mpi_rank_;
     MPI_Comm world_;
